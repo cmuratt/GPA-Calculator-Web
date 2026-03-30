@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="GPA Calculator — Üniversite öğrencileri için GPA ve CGPA takip uygulaması">
+    <meta name="theme-color" content="#3296FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GPA Calc">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>GPA Calculator</title>
+</head>
+<body>
+
+    <!-- ==================== START SCREEN ==================== -->
+    <div id="start-screen" class="screen active">
+        <div class="start-container">
+            <div class="start-icon-glow"></div>
+            <div class="start-icon">
+                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M32 8L4 22L32 36L60 22L32 8Z" fill="url(#grad1)" stroke="#3296FF" stroke-width="1.5"/>
+                    <path d="M14 28V44C14 44 22 52 32 52C42 52 50 44 50 44V28L32 40L14 28Z" fill="url(#grad2)" stroke="#3296FF" stroke-width="1.5"/>
+                    <path d="M52 24V46" stroke="#3296FF" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="52" cy="47" r="2.5" fill="#3296FF"/>
+                    <defs>
+                        <linearGradient id="grad1" x1="4" y1="8" x2="60" y2="36">
+                            <stop offset="0%" stop-color="#1a5bb5"/>
+                            <stop offset="100%" stop-color="#3296FF"/>
+                        </linearGradient>
+                        <linearGradient id="grad2" x1="14" y1="28" x2="50" y2="52">
+                            <stop offset="0%" stop-color="#0d3a7a"/>
+                            <stop offset="100%" stop-color="#2070cc"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h1 class="start-title">GPA Calculator</h1>
+            <p class="start-subtitle">Designed by Murat Can IŞIK</p>
+            <div class="start-buttons">
+                <button id="btn-saved-profile" class="btn-primary btn-lg" onclick="app.showProfileScreen()">
+                    <span class="btn-icon">📋</span>
+                    Saved Profile
+                </button>
+                <button id="btn-guest-mode" class="btn-secondary btn-lg" onclick="app.showGuestScreen()">
+                    <span class="btn-icon">🔮</span>
+                    Guest Mode
+                </button>
+            </div>
+            <div class="start-hint">
+                <span>Saved Profile</span> — kayıtlı akademik profiliniz &bull;
+                <span>Guest Mode</span> — hızlı senaryo hesabı
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PROFILE SCREEN ==================== -->
+    <div id="profile-screen" class="screen">
+        <header class="app-header">
+            <div class="header-left">
+                <button id="btn-profile-back" class="btn-icon-only" onclick="app.showStartScreen()" aria-label="Geri">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <h2 class="header-title">My Profile</h2>
+            </div>
+            <div class="header-gpa" id="overall-gpa">
+                <span class="gpa-label">Overall GPA</span>
+                <span class="gpa-value" id="overall-gpa-value">0.00</span>
+            </div>
+        </header>
+
+        <div class="semester-actions">
+            <button id="btn-add-semester" class="btn-action" onclick="app.addSemester()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add
+            </button>
+            <button id="btn-rename-semester" class="btn-action" onclick="app.renameSemester()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                Rename
+            </button>
+            <button id="btn-delete-semester" class="btn-action btn-danger" onclick="app.deleteSemester()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Delete
+            </button>
+        </div>
+
+        <div class="tabs-container" id="semester-tabs">
+            <div class="tabs-scroll" id="tabs-scroll">
+                <!-- Tabs will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <div class="table-container" id="profile-table-container">
+            <table id="profile-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Credit</th>
+                        <th>Grade</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody id="profile-table-body">
+                    <!-- Rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+            <div class="table-empty" id="profile-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <p>No courses yet. Add your first course below.</p>
+            </div>
+        </div>
+
+        <div class="course-input-bar" id="profile-input-bar">
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="profile-code">Code</label>
+                    <input type="text" id="profile-code" placeholder="CS 101" autocomplete="off">
+                </div>
+                <div class="input-group input-small">
+                    <label for="profile-credit">Credit</label>
+                    <input type="number" id="profile-credit" placeholder="3" min="1" max="10" inputmode="numeric">
+                </div>
+                <div class="input-group">
+                    <label for="profile-grade">Grade</label>
+                    <select id="profile-grade"></select>
+                </div>
+            </div>
+            <div class="input-actions">
+                <button id="btn-add-course" class="btn-primary" onclick="app.addCourseToProfile()">Add</button>
+                <button id="btn-update-course" class="btn-secondary" onclick="app.updateCourseInProfile()">Update</button>
+                <button id="btn-delete-course" class="btn-danger-sm" onclick="app.deleteCourseFromProfile()">Delete</button>
+                <div class="term-gpa">
+                    <span class="gpa-label">Term GPA</span>
+                    <span class="gpa-value" id="term-gpa-value">0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== GUEST SCREEN ==================== -->
+    <div id="guest-screen" class="screen">
+        <header class="app-header">
+            <div class="header-left">
+                <button id="btn-guest-back" class="btn-icon-only" onclick="app.showStartScreen()" aria-label="Geri">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <h2 class="header-title">Guest Mode</h2>
+            </div>
+        </header>
+
+        <div class="guest-current-status">
+            <div class="status-card">
+                <h3>Current Academic Status</h3>
+                <div class="status-inputs">
+                    <div class="input-group">
+                        <label for="guest-current-gpa">Current CGPA</label>
+                        <input type="text" id="guest-current-gpa" value="0.00" inputmode="decimal" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label for="guest-current-credits">Total Credits</label>
+                        <input type="number" id="guest-current-credits" value="0" min="0" inputmode="numeric" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container" id="guest-table-container">
+            <table id="guest-table">
+                <thead>
+                    <tr>
+                        <th>Course (Opt)</th>
+                        <th>Credit</th>
+                        <th>Grade</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody id="guest-table-body">
+                    <!-- Rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+            <div class="table-empty" id="guest-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <p>Add courses to see your projected GPA.</p>
+            </div>
+        </div>
+
+        <div class="projected-gpa-banner" id="projected-gpa-banner">
+            <span class="projected-label">New Projected GPA</span>
+            <span class="projected-value" id="projected-gpa-value">0.00</span>
+        </div>
+
+        <div class="course-input-bar" id="guest-input-bar">
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="guest-code">Code</label>
+                    <input type="text" id="guest-code" placeholder="Optional" autocomplete="off">
+                </div>
+                <div class="input-group input-small">
+                    <label for="guest-credit">Credit</label>
+                    <input type="number" id="guest-credit" placeholder="3" min="1" max="10" inputmode="numeric">
+                </div>
+                <div class="input-group">
+                    <label for="guest-grade">Grade</label>
+                    <select id="guest-grade"></select>
+                </div>
+            </div>
+            <div class="input-actions">
+                <button id="btn-guest-add" class="btn-primary" onclick="app.addCourseToGuest()">Add Course</button>
+                <button id="btn-guest-delete" class="btn-danger-sm" onclick="app.deleteCourseFromGuest()">Delete Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL ==================== -->
+    <div id="modal-overlay" class="modal-overlay" onclick="app.closeModal()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <h3 id="modal-title">Title</h3>
+            <div id="modal-body">
+                <input type="text" id="modal-input" placeholder="" autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="app.closeModal()">Cancel</button>
+                <button class="btn-primary" id="modal-confirm" onclick="app.confirmModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TOAST ==================== -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
