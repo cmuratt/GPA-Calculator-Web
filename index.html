@@ -21,14 +21,46 @@
 
     <!-- ==================== START SCREEN ==================== -->
     <div id="start-screen" class="screen active">
+        <!-- Settings Button -->
+        <button id="btn-settings" class="btn-settings" onclick="app.toggleSettings()" aria-label="Settings">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+        </button>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel" class="settings-panel">
+            <div class="settings-section">
+                <span class="settings-label">THEME</span>
+                <div class="theme-toggle" id="theme-toggle" onclick="app.toggleTheme()">
+                    <div class="theme-toggle-track">
+                        <span class="theme-icon theme-icon-light">☀️</span>
+                        <span class="theme-icon theme-icon-dark">🌙</span>
+                        <div class="theme-toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <span class="settings-label">ACCENT COLOR</span>
+                <div class="color-picker" id="color-picker">
+                    <button class="color-dot active" data-color="#3296FF" style="--dot-color: #3296FF" onclick="app.setAccentColor('#3296FF')"></button>
+                    <button class="color-dot" data-color="#a855f7" style="--dot-color: #a855f7" onclick="app.setAccentColor('#a855f7')"></button>
+                    <button class="color-dot" data-color="#22c55e" style="--dot-color: #22c55e" onclick="app.setAccentColor('#22c55e')"></button>
+                    <button class="color-dot" data-color="#f97316" style="--dot-color: #f97316" onclick="app.setAccentColor('#f97316')"></button>
+                    <button class="color-dot" data-color="#ef4444" style="--dot-color: #ef4444" onclick="app.setAccentColor('#ef4444')"></button>
+                    <button class="color-dot" data-color="#ec4899" style="--dot-color: #ec4899" onclick="app.setAccentColor('#ec4899')"></button>
+                </div>
+            </div>
+        </div>
+
         <div class="start-container">
             <div class="start-icon-glow"></div>
             <div class="start-icon">
                 <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M32 8L4 22L32 36L60 22L32 8Z" fill="url(#grad1)" stroke="#3296FF" stroke-width="1.5"/>
-                    <path d="M14 28V44C14 44 22 52 32 52C42 52 50 44 50 44V28L32 40L14 28Z" fill="url(#grad2)" stroke="#3296FF" stroke-width="1.5"/>
-                    <path d="M52 24V46" stroke="#3296FF" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="52" cy="47" r="2.5" fill="#3296FF"/>
+                    <path d="M32 8L4 22L32 36L60 22L32 8Z" fill="url(#grad1)" stroke="currentColor" stroke-width="1.5" class="svg-accent"/>
+                    <path d="M14 28V44C14 44 22 52 32 52C42 52 50 44 50 44V28L32 40L14 28Z" fill="url(#grad2)" stroke="currentColor" stroke-width="1.5" class="svg-accent"/>
+                    <path d="M52 24V46" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="svg-accent"/>
+                    <circle cx="52" cy="47" r="2.5" fill="currentColor" class="svg-accent"/>
                     <defs>
                         <linearGradient id="grad1" x1="4" y1="8" x2="60" y2="36">
                             <stop offset="0%" stop-color="#1a5bb5"/>
@@ -45,17 +77,11 @@
             <p class="start-subtitle">Designed by Murat Can IŞIK</p>
             <div class="start-buttons">
                 <button id="btn-saved-profile" class="btn-primary btn-lg" onclick="app.showProfileScreen()">
-                    <span class="btn-icon">📋</span>
                     Saved Profile
                 </button>
                 <button id="btn-guest-mode" class="btn-secondary btn-lg" onclick="app.showGuestScreen()">
-                    <span class="btn-icon">🔮</span>
                     Guest Mode
                 </button>
-            </div>
-            <div class="start-hint">
-                <span>Saved Profile</span> — kayıtlı akademik profiliniz &bull;
-                <span>Guest Mode</span> — hızlı senaryo hesabı
             </div>
         </div>
     </div>
@@ -71,24 +97,40 @@
                 </button>
                 <h2 class="header-title">My Profile</h2>
             </div>
-            <div class="header-gpa" id="overall-gpa">
-                <span class="gpa-label">Overall GPA</span>
-                <span class="gpa-value" id="overall-gpa-value">0.00</span>
+            <div class="header-right-group">
+                <!-- Scenario Toggle -->
+                <div class="scenario-toggle" id="scenario-toggle">
+                    <label class="toggle-label" for="scenario-checkbox">Scenario</label>
+                    <div class="toggle-switch" onclick="app.toggleScenario()">
+                        <input type="checkbox" id="scenario-checkbox">
+                        <span class="toggle-slider"></span>
+                    </div>
+                </div>
+                <div class="header-gpa" id="overall-gpa">
+                    <span class="gpa-label">OVERALL GPA</span>
+                    <span class="gpa-value" id="overall-gpa-value">0.00</span>
+                </div>
             </div>
         </header>
+
+        <!-- Scenario Banner -->
+        <div class="scenario-banner" id="scenario-banner">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            Scenario Mode — changes are temporary
+        </div>
 
         <div class="semester-actions">
             <button id="btn-add-semester" class="btn-action" onclick="app.addSemester()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add
+                Add Semester
             </button>
             <button id="btn-rename-semester" class="btn-action" onclick="app.renameSemester()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                Rename
+                Rename Semester
             </button>
             <button id="btn-delete-semester" class="btn-action btn-danger" onclick="app.deleteSemester()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                Delete
+                Delete Semester
             </button>
         </div>
 
@@ -102,10 +144,10 @@
             <table id="profile-table">
                 <thead>
                     <tr>
-                        <th>Code</th>
-                        <th>Credit</th>
-                        <th>Grade</th>
-                        <th>Value</th>
+                        <th>CODE</th>
+                        <th>CREDIT</th>
+                        <th>GRADE</th>
+                        <th>VALUE</th>
                     </tr>
                 </thead>
                 <tbody id="profile-table-body">
@@ -121,15 +163,15 @@
         <div class="course-input-bar" id="profile-input-bar">
             <div class="input-row">
                 <div class="input-group">
-                    <label for="profile-code">Code</label>
+                    <label for="profile-code">CODE</label>
                     <input type="text" id="profile-code" placeholder="CS 101" autocomplete="off">
                 </div>
                 <div class="input-group input-small">
-                    <label for="profile-credit">Credit</label>
+                    <label for="profile-credit">CREDIT</label>
                     <input type="number" id="profile-credit" placeholder="3" min="1" max="10" inputmode="numeric">
                 </div>
                 <div class="input-group">
-                    <label for="profile-grade">Grade</label>
+                    <label for="profile-grade">GRADE</label>
                     <select id="profile-grade"></select>
                 </div>
             </div>
@@ -138,7 +180,7 @@
                 <button id="btn-update-course" class="btn-secondary" onclick="app.updateCourseInProfile()">Update</button>
                 <button id="btn-delete-course" class="btn-danger-sm" onclick="app.deleteCourseFromProfile()">Delete</button>
                 <div class="term-gpa">
-                    <span class="gpa-label">Term GPA</span>
+                    <span class="gpa-label">TERM GPA</span>
                     <span class="gpa-value" id="term-gpa-value">0.00</span>
                 </div>
             </div>
@@ -160,14 +202,14 @@
 
         <div class="guest-current-status">
             <div class="status-card">
-                <h3>Current Academic Status</h3>
+                <h3>CURRENT ACADEMIC STATUS</h3>
                 <div class="status-inputs">
                     <div class="input-group">
-                        <label for="guest-current-gpa">Current CGPA</label>
+                        <label for="guest-current-gpa">CURRENT CGPA</label>
                         <input type="text" id="guest-current-gpa" value="0.00" inputmode="decimal" autocomplete="off">
                     </div>
                     <div class="input-group">
-                        <label for="guest-current-credits">Total Credits</label>
+                        <label for="guest-current-credits">TOTAL CREDITS</label>
                         <input type="number" id="guest-current-credits" value="0" min="0" inputmode="numeric" autocomplete="off">
                     </div>
                 </div>
@@ -178,10 +220,10 @@
             <table id="guest-table">
                 <thead>
                     <tr>
-                        <th>Course (Opt)</th>
-                        <th>Credit</th>
-                        <th>Grade</th>
-                        <th>Value</th>
+                        <th>COURSE (OPT)</th>
+                        <th>CREDIT</th>
+                        <th>GRADE</th>
+                        <th>VALUE</th>
                     </tr>
                 </thead>
                 <tbody id="guest-table-body">
@@ -202,15 +244,15 @@
         <div class="course-input-bar" id="guest-input-bar">
             <div class="input-row">
                 <div class="input-group">
-                    <label for="guest-code">Code</label>
+                    <label for="guest-code">CODE</label>
                     <input type="text" id="guest-code" placeholder="Optional" autocomplete="off">
                 </div>
                 <div class="input-group input-small">
-                    <label for="guest-credit">Credit</label>
+                    <label for="guest-credit">CREDIT</label>
                     <input type="number" id="guest-credit" placeholder="3" min="1" max="10" inputmode="numeric">
                 </div>
                 <div class="input-group">
-                    <label for="guest-grade">Grade</label>
+                    <label for="guest-grade">GRADE</label>
                     <select id="guest-grade"></select>
                 </div>
             </div>

@@ -59,7 +59,6 @@ class GPAManager {
         if (this.semesterMap.hasOwnProperty(oldName) &&
             !this.semesterMap.hasOwnProperty(newName) &&
             newName && newName.trim()) {
-            // Preserve order by rebuilding the map
             const newMap = {};
             for (const [key, value] of Object.entries(this.semesterMap)) {
                 if (key === oldName) {
@@ -186,6 +185,22 @@ class GPAManager {
             this.semesterMap = {};
         }
     }
+
+    // ── Deep Clone for Scenario Mode ──
+    getSnapshot() {
+        const data = {};
+        for (const [name, courses] of Object.entries(this.semesterMap)) {
+            data[name] = courses.map(c => new Course(c.code, c.credit, c.letterGrade));
+        }
+        return data;
+    }
+
+    restoreSnapshot(snapshot) {
+        this.semesterMap = {};
+        for (const [name, courses] of Object.entries(snapshot)) {
+            this.semesterMap[name] = courses.map(c => new Course(c.code, c.credit, c.letterGrade));
+        }
+    }
 }
 
 // ── Application Controller ──
@@ -198,21 +213,139 @@ class App {
         this.guestCourses = [];
         this.modalCallback = null;
 
+        // Scenario mode
+        this.scenarioActive = false;
+        this.scenarioSnapshot = null;
+        this._originalSaveData = this.manager.saveData.bind(this.manager);
+
+        // Settings
+        this.settingsOpen = false;
+
         this._populateGradeSelects();
         this._bindGuestEvents();
+        this._loadSettings();
+    }
+
+    // ── Settings ──
+    toggleSettings() {
+        this.settingsOpen = !this.settingsOpen;
+        const panel = document.getElementById('settings-panel');
+        const btn = document.getElementById('btn-settings');
+        panel.classList.toggle('active', this.settingsOpen);
+        btn.classList.toggle('active', this.settingsOpen);
+    }
+
+    _closeSettings() {
+        this.settingsOpen = false;
+        document.getElementById('settings-panel').classList.remove('active');
+        document.getElementById('btn-settings').classList.remove('active');
+    }
+
+    toggleTheme() {
+        const body = document.body;
+        body.classList.toggle('light-theme');
+        const isLight = body.classList.contains('light-theme');
+        localStorage.setItem('gpa_theme', isLight ? 'light' : 'dark');
+    }
+
+    setAccentColor(color) {
+        document.documentElement.style.setProperty('--accent', color);
+
+        // Compute glow and soft variants
+        const r = parseInt(color.slice(1,3), 16);
+        const g = parseInt(color.slice(3,5), 16);
+        const b = parseInt(color.slice(5,7), 16);
+        document.documentElement.style.setProperty('--accent-glow', `rgba(${r},${g},${b},0.25)`);
+        document.documentElement.style.setProperty('--accent-soft', `rgba(${r},${g},${b},0.1)`);
+        document.documentElement.style.setProperty('--accent-hover', color);
+
+        // Update active dot
+        document.querySelectorAll('.color-dot').forEach(dot => {
+            dot.classList.toggle('active', dot.dataset.color === color);
+        });
+
+        localStorage.setItem('gpa_accent', color);
+    }
+
+    _loadSettings() {
+        // Theme
+        const theme = localStorage.getItem('gpa_theme');
+        if (theme === 'light') {
+            document.body.classList.add('light-theme');
+        }
+
+        // Accent color
+        const accent = localStorage.getItem('gpa_accent');
+        if (accent) {
+            this.setAccentColor(accent);
+        }
+    }
+
+    // ── Scenario Mode ──
+    toggleScenario() {
+        const checkbox = document.getElementById('scenario-checkbox');
+        const banner = document.getElementById('scenario-banner');
+
+        if (!this.scenarioActive) {
+            // Activate scenario mode — snapshot current data
+            this.scenarioActive = true;
+            checkbox.checked = true;
+            banner.classList.add('active');
+            this.scenarioSnapshot = this.manager.getSnapshot();
+
+            // Override saveData to be a no-op in scenario mode
+            this.manager.saveData = () => {};
+
+            this._showToast('Scenario mode ON — changes are temporary', 'success');
+        } else {
+            // Deactivate scenario mode — restore original data
+            this.scenarioActive = false;
+            checkbox.checked = false;
+            banner.classList.remove('active');
+
+            // Restore original saveData function
+            this.manager.saveData = this._originalSaveData;
+
+            // Restore snapshot
+            if (this.scenarioSnapshot) {
+                this.manager.restoreSnapshot(this.scenarioSnapshot);
+                this.scenarioSnapshot = null;
+            }
+
+            // Refresh UI
+            this._renderSemesterTabs();
+            const names = this.manager.getSemesterNames();
+            if (names.length > 0) {
+                if (!this.currentSemester || !names.includes(this.currentSemester)) {
+                    this.currentSemester = names[0];
+                }
+                this._selectSemesterTab(this.currentSemester);
+            } else {
+                this.currentSemester = null;
+                this._renderProfileTable();
+            }
+            this._updateOverallGPA();
+
+            this._showToast('Scenario mode OFF — restored original data', 'success');
+        }
     }
 
     // ── Screen Navigation ──
     showStartScreen() {
+        // If scenario mode is active, deactivate when leaving profile
+        if (this.scenarioActive) {
+            this.toggleScenario();
+        }
+        this._closeSettings();
         this._switchScreen('start-screen');
     }
 
     showProfileScreen() {
+        this._closeSettings();
         this._switchScreen('profile-screen');
         this._renderSemesterTabs();
         this._updateOverallGPA();
 
-        // Select first semester if exists
         const names = this.manager.getSemesterNames();
         if (names.length > 0) {
             if (!this.currentSemester || !names.includes(this.currentSemester)) {
@@ -226,6 +359,7 @@ class App {
     }
 
     showGuestScreen() {
+        this._closeSettings();
         this._switchScreen('guest-screen');
         this._renderGuestTable();
         this._updateProjectedGPA();
@@ -321,12 +455,10 @@ class App {
         this.selectedProfileRow = -1;
         this._clearProfileInputs();
 
-        // Update tab active state
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.semester === name);
         });
 
-        // Scroll tab into view
         const activeTab = document.querySelector('.tab-btn.active');
         if (activeTab) {
             activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -446,7 +578,6 @@ class App {
 
     _selectProfileRow(index, course) {
         if (this.selectedProfileRow === index) {
-            // Deselect
             this.selectedProfileRow = -1;
             this._clearProfileInputs();
         } else {
@@ -456,7 +587,6 @@ class App {
             document.getElementById('profile-grade').value = course.letterGrade;
         }
 
-        // Update row highlighting
         document.querySelectorAll('#profile-table-body tr').forEach((tr, i) => {
             tr.classList.toggle('selected', i === this.selectedProfileRow);
         });
@@ -596,8 +726,6 @@ class App {
         this.modalCallback = callback;
 
         overlay.classList.add('active');
-
-        // Focus input after animation
         setTimeout(() => inputEl.focus(), 300);
     }
 
@@ -689,6 +817,17 @@ document.getElementById('modal-input').addEventListener('keydown', (e) => {
                 app.addCourseToGuest();
             }
         });
+    }
+});
+
+// ── Close settings when clicking outside ──
+document.addEventListener('click', (e) => {
+    if (app && app.settingsOpen) {
+        const panel = document.getElementById('settings-panel');
+        const btn = document.getElementById('btn-settings');
+        if (!panel.contains(e.target) && !btn.contains(e.target)) {
+            app._closeSettings();
+        }
     }
 });
 

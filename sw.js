@@ -3,7 +3,7 @@
 // Offline support with cache-first strategy
 // ============================================
 
-const CACHE_NAME = 'gpa-calc-v1';
+const CACHE_NAME = 'gpa-calc-v2';
 const ASSETS = [
     './',
     './index.html',
