@@ -1,6 +1,6 @@
 {
     "name": "GPA Calculator",
-    "short_name": "GPA Calc",
+    "short_name": "GPA Calculator",
     "description": "GPA & CGPA Calculator — Track your academic performance",
     "start_url": "./index.html",
     "scope": "./",
@@ -22,5 +22,8 @@
             "purpose": "any maskable"
         }
     ],
-    "categories": ["education", "utilities"]
+    "categories": [
+        "education",
+        "utilities"
+    ]
 }
